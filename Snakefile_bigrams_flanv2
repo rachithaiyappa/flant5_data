@@ -1,0 +1,31 @@
+import os
+import numpy as np
+
+FILES = [f for f in os.listdir("/data2/sg/racball/flan_v2/") if "jsonl.gz" in f]
+
+TARGETS = ["true","false","positive","negative","favor","against","entails","contradicts",
+           "True","False","Positive","Negative","Favor","Against","Entails","Contradicts"]
+
+OUTPUTS = os.path.join("data", "bigrams_flanv2", "{file}__bigrams--{target}.pkl")
+
+
+def custom_expand(outputs, FILES, TARGETS):
+    to_return = []
+    for target in TARGETS:
+        for file in FILES:
+            to_return.append(OUTPUTS.format(file=file, target=target))
+
+    return to_return
+
+rule all:
+    input:
+        custom_expand(OUTPUTS, FILES, TARGETS)
+            
+
+rule bigrams:
+    input:
+        script = "scripts/bigrams_flanv2.py"
+    output:
+        data = OUTPUTS
+    shell:
+        "python3 {input.script} {output.data}"

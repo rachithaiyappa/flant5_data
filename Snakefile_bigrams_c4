@@ -1,0 +1,37 @@
+import os
+import numpy as np
+
+
+total = 1024
+chunk_size = 50
+STARTS = np.arange(0,total, chunk_size)
+FINISHES = [s+chunk_size for s in STARTS]
+
+TARGETS = ["true","false","positive","negative","favor","against","entails","contradicts",
+           "True","False","Positive","Negative","Favor","Against","Entails","Contradicts"]
+
+
+OUTPUTS = []
+
+OUTPUTS = os.path.join("data", "bigrams", "bigrams_{start}_{finish}--{target}.pkl")
+
+def custom_expand(outputs, STARTS, FINISHES, TARGETS):
+    to_return = []
+    for target in TARGETS:
+        for start, finish in zip(STARTS, FINISHES):
+            to_return.append(OUTPUTS.format(start=start, finish=finish, target=target))
+
+    return to_return
+
+rule all:
+    input:
+        custom_expand(OUTPUTS, STARTS, FINISHES, TARGETS)
+            
+
+rule bigrams:
+    input:
+        script = "scripts/bigrams.py"
+    output:
+        data = OUTPUTS
+    shell:
+        "python3 {input.script} {output.data}"

@@ -1,0 +1,21 @@
+import os
+import numpy as np
+
+
+FILES = [f for f in os.listdir("/data2/sg/racball/flan_v2/") if "jsonl.gz" in f]
+
+OUTPUTS = [f"{f}_unigrams.pkl" for f in FILES]
+OUTPUTS = os.path.join("data", "unigrams_flanv2", "{file}_unigrams.pkl")
+
+rule all:
+    input:
+        expand(OUTPUTS, file = FILES)
+            
+
+rule unigrams_flanv2:
+    input:
+        script = "scripts/unigrams_flanv2.py"
+    output:
+        data = OUTPUTS
+    shell:
+        "python3 {input.script} {wildcards.file} {output.data}"
